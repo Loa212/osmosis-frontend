@@ -1,4 +1,10 @@
-import { FunctionComponent, useCallback, useMemo, useState } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { CoinPretty, Dec } from "@keplr-wallet/unit";
 import { initialAssetsSort } from "../../config";
 import {
@@ -26,6 +32,7 @@ import { Button } from "../buttons";
 import { PreTransferModal } from "../../modals";
 import { IbcHistoryTable } from "./ibc-history";
 import { ColumnDef } from "./types";
+import { useRouter } from "next/router";
 
 interface Props {
   nativeBalances: CoinBalance[];
@@ -182,6 +189,20 @@ export const AssetsTable: FunctionComponent<Props> = ({
     false
   );
   const canHideZeroBalances = cells.some((cell) => cell.amount !== "0");
+
+  //get query filter from url
+  const router = useRouter();
+
+  useEffect(() => {
+    const tiker = router.query.tiker?.toString() || "";
+    console.log({ tiker });
+    if (!tiker) return;
+    setQuery(tiker);
+
+    return () => {
+      setQuery("");
+    };
+  }, [router.query.tiker]);
 
   // Filter data based on user's input in the search box.
   const [query, setQuery, filteredSortedCells] = useFilteredData(
